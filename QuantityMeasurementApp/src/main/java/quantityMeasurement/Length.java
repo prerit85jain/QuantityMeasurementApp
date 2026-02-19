@@ -10,7 +10,9 @@ public class Length {
 	// Enum with conversion factor to base unit (inches)
 	public enum LengthUnit{
 		FEET(12.0),
-		Inches(1.0);
+		INCHES(1.0),
+		YARDS(36.0),
+		CENTIMETERS(0.393701);
 		
 		private final double conversionFactor;
 		
@@ -32,9 +34,10 @@ public class Length {
 		this.unit = unit;
 	}
 	
-	// Convert the length value to the base unit (inches)
+	// Convert the length value to the base unit (inches) and round off to two decimal places
 	private double convertToBaseUnit() {
-		return this.value * this.unit.getConversionFactor();
+		double convertedValue = this.value * this.unit.getConversionFactor();
+		return Math.round(convertedValue*100)/100;
 	}
 	
 	// Compare two length objects for equality based on their values in the base unit
@@ -46,11 +49,12 @@ public class Length {
 	@Override
 	public boolean equals(Object o) {
 		
+		// Reference check
+		if(o == this) {return true;}
+
 		// Null check and Same class check
 		if(o == null || o.getClass() != this.getClass()) {return false;}
 		
-		// Reference check
-		if(o == this) {return true;}
 		
 		// Cast
 		Length length = (Length) o;
@@ -65,8 +69,15 @@ public class Length {
 	// Main method
 	public static void main(String[] args) {
 		Length length1 = new Length(1.0, LengthUnit.FEET);
-		Length length2 = new Length(12.0, LengthUnit.Inches);
+		Length length2 = new Length(12.0, LengthUnit.INCHES);
+		System.out.println("Are lengths equals? " + length1.equals(length2)); // Should print true;
 		
-		System.out.println("Are lengths equals? " + length1.equals(length2));
+		Length length3 = new Length(1, LengthUnit.YARDS);
+		Length length4 = new Length(36, LengthUnit.INCHES);
+		System.out.println("Are lengths equals? " + length3.equals(length4)); // Should print true;
+		
+		Length length5 = new Length(100, LengthUnit.CENTIMETERS);
+		Length length6 = new Length(39.3701, LengthUnit.INCHES);
+		System.out.println("Are lengths equals? " + length5.equals(length6)); // Should print true;
 	}
 }
