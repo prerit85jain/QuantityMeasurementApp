@@ -27,6 +27,10 @@ public class Length {
 	
 	// Constructor to initialize length value and unit
 	public Length(double value, LengthUnit unit) {
+		
+		if(!Double.isFinite(value)) {
+			throw new IllegalArgumentException("Value must be finite");
+		}
 		if(unit == null) {
 			throw new IllegalArgumentException("Unit cannot be null");
 		}
@@ -37,7 +41,7 @@ public class Length {
 	// Convert the length value to the base unit (inches) and round off to two decimal places
 	private double convertToBaseUnit() {
 		double convertedValue = this.value * this.unit.getConversionFactor();
-		return Math.round(convertedValue*100)/100;
+		return round(convertedValue);
 	}
 	
 	// Compare two length objects for equality based on their values in the base unit
@@ -64,6 +68,28 @@ public class Length {
 	@Override
 	public int hashCode() {
 		return Objects.hash(convertToBaseUnit());
+	}
+	
+	// Convert the length to a specific target unit
+	public Length convertTo(LengthUnit targetUnit) {
+		if(targetUnit == null) {
+			throw new IllegalArgumentException("Target unit connot be null");
+		}
+		
+		double baseValue = this.convertToBaseUnit();
+		double convertValue = baseValue * targetUnit.getConversionFactor();
+		
+		return new Length(round(convertValue), targetUnit);
+	}
+	
+	// Round the values to the two decimal places
+	private double round(double value) {
+		return Math.round(value*100)/100;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%.2f %s", value, unit);
 	}
 	
 	// Main method
