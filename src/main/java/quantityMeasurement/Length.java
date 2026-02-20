@@ -23,11 +23,12 @@ public class Length {
 		public double getConversionFactor() {
 			return conversionFactor;
 		}
+
 	}
-	
+
 	// Constructor to initialize length value and unit
 	public Length(double value, LengthUnit unit) {
-		
+
 		if(!Double.isFinite(value)) {
 			throw new IllegalArgumentException("Value must be finite");
 		}
@@ -37,7 +38,8 @@ public class Length {
 		this.value = value;
 		this.unit = unit;
 	}
-	
+	public double getValue(){return value;}
+
 	// Convert the length value to the base unit (inches) and round off to two decimal places
 	private double convertToBaseUnit() {
 		double convertedValue = this.value * this.unit.getConversionFactor();
@@ -77,7 +79,7 @@ public class Length {
 		}
 		
 		double baseValue = this.convertToBaseUnit();
-		double convertValue = baseValue * targetUnit.getConversionFactor();
+		double convertValue = baseValue / targetUnit.getConversionFactor();
 		
 		return new Length(round(convertValue), targetUnit);
 	}
