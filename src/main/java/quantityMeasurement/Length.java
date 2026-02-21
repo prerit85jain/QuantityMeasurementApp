@@ -84,18 +84,28 @@ public class Length {
 		return new Length(round(convertValue), targetUnit);
 	}
 
-	// Add another length to this length
+	// Add a length to this length and return to the unit of this instance
 	public Length add(Length thatLength){
-		Length thisToInch = this.convertTo(LengthUnit.INCHES);
-		Length thatToInch = thatLength.convertTo(LengthUnit.INCHES);
+		return addAndConvert(thatLength, this.unit);
+	}
 
-		Length totalLength =  new Length(round(thisToInch.value + thatToInch.value), LengthUnit.INCHES);
-		return totalLength.convertTo(this.unit);
+	// Overload add method to convert the result to a specific target
+	public Length add(Length length, LengthUnit targetUnit){
+		return addAndConvert(length, targetUnit);
+	}
+
+	// Add the length value and return it in inch unit
+	private Length addAndConvert(Length length, LengthUnit targetUnit){
+		Length thisToInch = this.convertTo(LengthUnit.INCHES);
+		Length thatToInch = length.convertTo(LengthUnit.INCHES);
+
+		Length totalLength = new Length(round(thisToInch.value + thatToInch.value), LengthUnit.INCHES);
+		return totalLength.convertTo(targetUnit);
 	}
 	
 	// Round the values to the two decimal places
 	private double round(double value) {
-		return Math.round(value*100)/100;
+		return (double)Math.round(value*100)/100;
 	}
 	
 	@Override

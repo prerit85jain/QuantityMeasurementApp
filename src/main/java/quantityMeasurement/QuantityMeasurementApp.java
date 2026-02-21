@@ -1,6 +1,6 @@
 
  /*
-  * @version 6.0
+  * @version 7.0
   * @author Prerit Jain
  */
 
@@ -43,30 +43,35 @@ import java.time.Year;
 		return length1.add(length2);
 	}
 
+	// Demonstrate addition of second length to first length with target unit.
+	public static Length demonstrateLengthAddition(Length length1, Length length2, LengthUnit targetUnit){
+		return length1.add(length2, targetUnit);
+	}
+
 	// Main method
 	public static void main(String[] args) {
-		// Demonstrate Feet with Feet addition
-		System.out.println(demonstrateLengthAddition(new Length(1, LengthUnit.FEET), new Length(2, LengthUnit.FEET)));
+		// Demonstrate addition of feet with inch and convert to feet
+		System.out.println(demonstrateLengthAddition(new Length(1, LengthUnit.FEET), new Length(12, LengthUnit.INCHES), LengthUnit.FEET));
 
-		// Demonstrate Feet with inches addition
-		System.out.println(demonstrateLengthAddition(new Length(1, LengthUnit.FEET), new Length(12, LengthUnit.INCHES)));
+		// Demonstrate addition of feet with inch and convert to inches
+		System.out.println(demonstrateLengthAddition(new Length(1, LengthUnit.FEET), new Length(12, LengthUnit.INCHES), LengthUnit.INCHES));
 
-		// Demonstrate inches with feet addition
-		System.out.println(demonstrateLengthAddition(new Length(12, LengthUnit.INCHES), new Length(1, LengthUnit.FEET)));
+		// Demonstrate addition of feet with inches and convert to yards
+		System.out.println(demonstrateLengthAddition(new Length(1, LengthUnit.FEET), new Length(12, LengthUnit.INCHES), LengthUnit.YARDS));
 
-		// Demonstrate yards with feet addition
-		System.out.println(demonstrateLengthAddition(new Length(1, LengthUnit.YARDS), new Length(3, LengthUnit.FEET)));
+		// Demonstrate addition of yard with feet and convert to yard
+		System.out.println(demonstrateLengthAddition(new Length(1, LengthUnit.YARDS), new Length(3, LengthUnit.FEET), LengthUnit.YARDS));
 
-		// Demonstrate inches with yards addition
-		System.out.println(demonstrateLengthAddition(new Length(36, LengthUnit.INCHES), new Length(1, LengthUnit.YARDS)));
+		// Demonstrate addition of inch with yard and convert to feet
+		System.out.println(demonstrateLengthAddition(new Length(36, LengthUnit.INCHES), new Length(1, LengthUnit.YARDS), LengthUnit.FEET));
 
-		// Demonstrate centimeter to inches
-		System.out.println(demonstrateLengthAddition(new Length(2.54, LengthUnit.CENTIMETERS), new Length(1, LengthUnit.INCHES)));
+		// Demonstrate addition of centimeter with inch and convert to centimeter
+		System.out.println(demonstrateLengthAddition(new Length(2.54, LengthUnit.CENTIMETERS), new Length(1, LengthUnit.INCHES), LengthUnit.CENTIMETERS));
 
-		// Demonstrate feet to inches
-		System.out.println(demonstrateLengthAddition(new Length(5, LengthUnit.FEET), new Length(0, LengthUnit.INCHES)));
+		// Demonstrate addition of feet with inch and convert to yard
+		System.out.println(demonstrateLengthAddition(new Length(5, LengthUnit.FEET), new Length(0, LengthUnit.INCHES), LengthUnit.YARDS));
 
-		// Demonstrate feet to feet
-		System.out.println(demonstrateLengthAddition(new Length(5, LengthUnit.FEET), new Length(-2, LengthUnit.FEET)));
+		// Demonstrate addition of feet with feet and convert to inches
+		System.out.println(demonstrateLengthAddition(new Length(5, LengthUnit.FEET), new Length(-2, LengthUnit.FEET), LengthUnit.INCHES));
 	}
 }
