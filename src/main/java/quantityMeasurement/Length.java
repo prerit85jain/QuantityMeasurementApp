@@ -83,6 +83,15 @@ public class Length {
 		
 		return new Length(round(convertValue), targetUnit);
 	}
+
+	// Add another length to this length
+	public Length add(Length thatLength){
+		Length thisToInch = this.convertTo(LengthUnit.INCHES);
+		Length thatToInch = thatLength.convertTo(LengthUnit.INCHES);
+
+		Length totalLength =  new Length(round(thisToInch.value + thatToInch.value), LengthUnit.INCHES);
+		return totalLength.convertTo(this.unit);
+	}
 	
 	// Round the values to the two decimal places
 	private double round(double value) {
