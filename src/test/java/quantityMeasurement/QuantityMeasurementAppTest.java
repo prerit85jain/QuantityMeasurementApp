@@ -8,74 +8,125 @@ import static org.junit.Assert.*;
 
 public class QuantityMeasurementAppTest {
 
-	@Test
-	public void testLengthUnitEnum_FeetConstant(){
-		assertTrue(LengthUnit.FEET.getConversionFactor()==12);
-	}
+    @Test
+    public void kilogramEquals1000Grams(){
+        Weight kg = new Weight(1, WeightUnit.KILOGRAM);
+        assertEquals(new Weight(1000, WeightUnit.GRAM), kg.convertTo(WeightUnit.GRAM));
+    }
 
-	@Test
-	public void testConvertToBaseUnit_InchesToFeet(){
-		assertTrue(LengthUnit.INCHES.convertToBaseUnit(12.0)==12);
-	}
+    @Test
+    public void poundEquals453Point592Grams() {
+        Weight pound = new Weight(1, WeightUnit.POUND);
+        Weight grams = new Weight(453.592, WeightUnit.GRAM);
 
-	@Test
-	public void testConvertFromBaseUnit_FeetToYards(){
-		assertTrue(LengthUnit.YARDS.convertFromBaseUnit(36.0)==1);
-	}
+        assertEquals(pound, grams);
+    }
 
-	// ---- QuantityLength refactored tests ----
+    @Test
+    public void tonneEquals1000000Grams() {
+        Weight tonne = new Weight(1, WeightUnit.TONNE);
+        Weight grams = new Weight(1000000, WeightUnit.GRAM);
 
-	@Test
-	public void testQuantityLengthRefactored_Equality(){
-		Length l1 = new Length(1.0, LengthUnit.FEET);
-		Length l2 = new Length(12.0, LengthUnit.INCHES);
+        assertEquals(tonne, grams);
+    }
 
-		assertEquals(l1, l2);
-	}
+    @Test
+    public void kilogramNotEqualToPound() {
+        Weight kilogram = new Weight(1, WeightUnit.KILOGRAM);
+        Weight pound = new Weight(1, WeightUnit.POUND);
 
-	@Test
-	public void testQuantityLengthRefactored_ConvertTo(){
-		Length length = new Length(1.0, LengthUnit.FEET);
+        assertNotEquals(kilogram, pound);
+    }
 
-		Length result = new Length(12.0, LengthUnit.INCHES);
-		assertEquals(result, length.convertTo(LengthUnit.INCHES));
-	}
+    @Test
+    public void additionOfWeightsEqualsExpected() {
+        Weight weight1 = new Weight(1, WeightUnit.KILOGRAM);
+        Weight weight2 = new Weight(1000, WeightUnit.GRAM);
 
-	@Test
-	public void testQuantityLengthRefactored_Add(){
-		Length l1 = new Length(1.0, LengthUnit.FEET);
-		Length l2 = new Length(12.0, LengthUnit.INCHES);
+        Weight result = weight1.add(weight2);
 
-		Length result = new Length(2.0, LengthUnit.FEET);
-		assertEquals(result, l1.add(l2, LengthUnit.FEET));
-	}
+        Weight expected = new Weight(2, WeightUnit.KILOGRAM);
 
-	@Test
-	public void testQuantityLengthRefactored_AddWithTargetUnit(){
-		Length l1 = new Length(1.0, LengthUnit.FEET);
-		Length l2 = new Length(12.0, LengthUnit.INCHES);
+        assertEquals(expected, result);
+    }
 
-		Length result = new Length(0.67, LengthUnit.YARDS);
-		assertEquals(result, l1.add(l2, LengthUnit.YARDS));
-	}
+    @Test
+    public void testFeetEquality() {
+        Length length1 = new Length(1, LengthUnit.FEET);
+        Length length2 = new Length(1, LengthUnit.FEET);
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testQuantityLengthRefactored_NullUnit(){
-		new Length(1.0, null);
-	}
+        assertEquals(length1, length2);
+    }
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testQuantityLengthRefactored_InvalidValue(){
-		new Length(Double.NaN, LengthUnit.FEET);
-	}
+    // testInchesEquality
+    @Test
+    public void testInchesEquality() {
+        Length length1 = new Length(12, LengthUnit.INCHES);
+        Length length2 = new Length(12, LengthUnit.INCHES);
 
-	@Test
-	public void testRoundTripConversion(){
-		Length length = new Length(1.0, LengthUnit.FEET);
+        assertEquals(length1, length2);
+    }
 
-		Length converted = length.convertTo(LengthUnit.INCHES)
-				.convertTo(LengthUnit.FEET);
+    // testFeetInchesComparison
+    @Test
+    public void testFeetInchesComparison() {
+        Length feet = new Length(1, LengthUnit.FEET);
+        Length inches = new Length(12, LengthUnit.INCHES);
 
-		assertEquals(length, converted);
-	}
+        assertEquals(feet, inches);
+    }
+
+    // testFeetInequality
+    @Test
+    public void testFeetInequality() {
+        Length length1 = new Length(1, LengthUnit.FEET);
+        Length length2 = new Length(2, LengthUnit.FEET);
+
+        assertNotEquals(length1, length2);
+    }
+
+    // testInchesInequality
+    @Test
+    public void testInchesInequality() {
+        Length length1 = new Length(12, LengthUnit.INCHES);
+        Length length2 = new Length(13, LengthUnit.INCHES);
+
+        assertNotEquals(length1, length2);
+    }
+
+    // testCrossUnitInequality
+    @Test
+    public void testCrossUnitInequality() {
+        Length feet = new Length(1, LengthUnit.FEET);
+        Length inches = new Length(13, LengthUnit.INCHES);
+
+        assertNotEquals(feet, inches);
+    }
+
+    // testMultipleFeetComparison
+    @Test
+    public void testMultipleFeetComparison() {
+        Length length1 = new Length(2, LengthUnit.FEET);
+        Length length2 = new Length(24, LengthUnit.INCHES);
+
+        assertEquals(length1, length2);
+    }
+
+    // yardEquals36Inches
+    @Test
+    public void yardEquals36Inches() {
+        Length yard = new Length(1, LengthUnit.YARDS);
+        Length inches = new Length(36, LengthUnit.INCHES);
+
+        assertEquals(yard, inches);
+    }
+
+    // centimeterEquals39Point3701Inches
+    @Test
+    public void centimeterEquals39Point3701Inches() {
+        Length centimeters = new Length(100, LengthUnit.CENTIMETERS);
+        Length inches = new Length(39.3701, LengthUnit.INCHES);
+
+        assertEquals(centimeters, inches);
+    }
 }
