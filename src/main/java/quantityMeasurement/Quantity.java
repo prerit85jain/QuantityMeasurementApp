@@ -79,6 +79,10 @@ public class Quantity<U extends IMeasurable> {
     // Round the value to two decimal value
     private double round(double value){return (double) Math.round(value*100)/100;}
 
+    public String toString(){
+        return String.format("%.2f %s", value, unit);
+    }
+
     // Main method to demonstrate
     public static void main(String[] args) {
         // Example usage

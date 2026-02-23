@@ -62,6 +62,17 @@ import java.time.Year;
 				WeightUnit.GRAM);
 		System.out.println("Sum weight in Grams: " + sumWeightInGrams.getValue() + " " +
 				sumWeightInGrams.getUnit());
+
+		System.out.println("--------------------------------------------------");
+
+		Quantity<VolumeUnit> v1 = new Quantity<>(1.0, VolumeUnit.LITRE);
+		Quantity<VolumeUnit> v2 = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
+		Quantity<VolumeUnit> v3 = new Quantity<>(1.0, VolumeUnit.GALLON);
+
+		System.out.println(v1.equals(v2)); // true
+		System.out.println(v3.convertTo(VolumeUnit.LITRE)); // 3.78541 L
+		System.out.println(v1.add(v2)); // 2 L
+		System.out.println(v1.add(v3, VolumeUnit.MILLILITRE)); // 4785.41 mL
 	}
 
  }
