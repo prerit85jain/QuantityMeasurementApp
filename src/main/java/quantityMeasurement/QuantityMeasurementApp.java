@@ -34,6 +34,16 @@ import java.time.Year;
 		 return quantity1.add(quantity2, targetUnit);
 	 }
 
+	 // Demonstrate Subtraction of two quantity and return result in the unit of the first quantity
+	 public static <U extends IMeasurable> Quantity<U> demonstrateSubtraction(Quantity<U> quantity1, Quantity<U> quantity2){
+		 return quantity1.subtract(quantity2);
+	 }
+
+	 // Demonstrate Subtraction of two quantity and return result in a specified target unit
+	 public static <U extends IMeasurable> Quantity<U> demonstrateSubtraction(Quantity<U> quantity1, Quantity<U> quantity2, U targetUnit){
+		 return quantity1.subtract(quantity2, targetUnit);
+	 }
+
 	// Main method
 	public static void main(String[] args) {
 		// Demonstration equality between the two quantities

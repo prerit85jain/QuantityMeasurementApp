@@ -34,16 +34,6 @@ public class Quantity<U extends IMeasurable> {
         return new Quantity<U>(round(convertValue), targetUnit);
     }
 
-    // Add the quantity to the another quantity of the same unit type
-    public Quantity<U> add(Quantity<U> other){
-        return addAndConvert(other, unit);
-    }
-
-    // Add this quantity to another quantity of the same unit type and return the result in the specific unit.
-    public Quantity<U> add(Quantity<U> other, U targetUnit){
-        return addAndConvert(other, targetUnit);
-    }
-
     // Compares this quantity with other object for equality.
     @Override
     public boolean equals(Object o){
@@ -57,58 +47,61 @@ public class Quantity<U extends IMeasurable> {
 
     }
 
-    // Add the quantity value and return it in target unit
-    private Quantity<U> addAndConvert(Quantity<U> other, U targetUnit){
-        if(targetUnit == null){
-            throw new IllegalArgumentException("Unit cannot be null");
-        }
-        if (!this.unit.getClass().equals(other.unit.getClass())) {
-            throw new IllegalArgumentException("Cannot add different measurement categories");
-        }
-        if(!targetUnit.getClass().equals(unit.getClass())){
-            throw new IllegalArgumentException("Target unit should belong to same class");
-        }
+    // Add the quantity to the another quantity of the same unit type
+    public Quantity<U> add(Quantity<U> other){
+        return add(other, unit);
+    }
+
+    // Add this quantity to another quantity of the same unit type and return the result in the specific unit.
+    public Quantity<U> add(Quantity<U> other, U targetUnit){
+        validateOperation(other, targetUnit);
+
         double thisBaseValue = unit.convertToBaseUnit(value);
         double otherBaseValue = other.unit.convertToBaseUnit(other.value);
 
         double totalValue = targetUnit.convertFromBaseUnit(thisBaseValue+otherBaseValue);
         return new Quantity<>(round(totalValue), targetUnit);
+    }
 
+    // Subtracts this quantity from another quantity of the same unit type and return the result in the unit of this quantity
+    public Quantity<U> subtract(Quantity<U> other){return subtract(other, unit);}
+
+    // Subtracts this quantity from another quantity of the same unit type and return the result in the specified target unit
+    public Quantity<U> subtract(Quantity<U> other, U targetUnit){
+        validateOperation(other, targetUnit);
+
+        double thisBaseUnit = unit.convertToBaseUnit(value);
+        double otherBaseUnit = other.unit.convertToBaseUnit(other.value);
+
+        double result = targetUnit.convertFromBaseUnit(thisBaseUnit-otherBaseUnit);
+
+        return new Quantity<>(round(result), targetUnit);
+    }
+
+    // Divide this quantity by another quantity of the same unit type and return the result as a double
+    public double divide(Quantity<U> other){
+        validateOperation(other, unit);
+
+        double thisBaseValue = unit.convertToBaseUnit(value);
+        double otherBaseValue = other.unit.convertToBaseUnit(other.value);
+
+        if(otherBaseValue == 0){throw new ArithmeticException("Division by zero");}
+
+        return round(thisBaseValue/otherBaseValue);
+    }
+
+    // Validate this class and another class not be null and belongs to same Unit
+    private void validateOperation(Quantity<U> quantity, U targetUnit){
+        if(targetUnit == null){throw new IllegalArgumentException("Target unit cannot be null");}
+        if(quantity == null){throw new IllegalArgumentException("Quantity cannot be null");}
+        if(!unit.getClass().equals(quantity.unit.getClass()) || !targetUnit.getClass().equals(unit.getClass())){throw new IllegalArgumentException("Different measurement unit are not allowed");}
     }
 
     // Round the value to two decimal value
     private double round(double value){return (double) Math.round(value*100)/100;}
 
-    public String toString(){
-        return String.format("%.2f %s", value, unit);
-    }
-
-    // Main method to demonstrate
-    public static void main(String[] args) {
-        // Example usage
-        Quantity<LengthUnit> lengthInFeet = new Quantity<>(10.0, LengthUnit.FEET);
-        Quantity<LengthUnit> lengthInInches = new Quantity<>(120.0, LengthUnit.INCHES);
-        boolean isEqual = lengthInFeet.equals(lengthInInches); // true
-        System.out.println("Are lengths equal? " + isEqual);
-
-        // Example usage for WeightUnit
-        Quantity<WeightUnit> weightInKilograms = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-        Quantity<WeightUnit> weightInGrams = new Quantity<>(1000.0, WeightUnit.GRAM);
-        isEqual = weightInKilograms.equals(weightInGrams); // true
-        System.out.println("Are weights equal? " + isEqual);
-
-        // Example Conversion
-        double convertedLength = (lengthInFeet.convertTo(LengthUnit.INCHES)).getValue();
-        System.out.println("10 feet in inches: " + convertedLength);
-
-        // Example Addition
-        Quantity<LengthUnit> totalLength = lengthInFeet.add(lengthInInches, LengthUnit.FEET);
-        System.out.println("Total Length in feet: " + totalLength.getValue() + " " + totalLength.getUnit());
-
-        // Example Addition for WeightUnit
-        Quantity<WeightUnit> weightInPounds = new Quantity<>(2.0, WeightUnit.POUND);
-        Quantity<WeightUnit> totalWeight = weightInKilograms.add(weightInPounds, WeightUnit.KILOGRAM);
-        System.out.println("Total Weight in kilograms: " + totalWeight.getValue() + " " + totalWeight.getUnit());
-    }
+    // Override toString method
+    @Override
+    public String toString(){return String.format("%.2f %s", value, unit);}
 
 }
