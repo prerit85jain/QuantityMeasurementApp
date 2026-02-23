@@ -47,6 +47,31 @@ public class Quantity<U extends IMeasurable> {
 
     }
 
+    // Arithmetic enum
+    private enum ArithmeticOperation{
+        ADD{
+            @Override
+            public double compute(double thisBase, double otherBase){
+                return thisBase + otherBase;
+            }
+        },
+        SUBTRACT{
+            @Override
+            public double compute(double thisBase, double otherBase){
+                return thisBase - otherBase;
+            }
+        },
+        Divide{
+            @Override
+            public double compute(double thisBase, double otherBase){
+                if(otherBase==0){throw new ArithmeticException("Cannot divide by zero");}
+                return thisBase/otherBase;
+            }
+        };
+
+        public abstract double compute(double thisBase, double otherBase);
+    }
+
     // Add the quantity to the another quantity of the same unit type
     public Quantity<U> add(Quantity<U> other){
         return add(other, unit);
@@ -54,13 +79,8 @@ public class Quantity<U extends IMeasurable> {
 
     // Add this quantity to another quantity of the same unit type and return the result in the specific unit.
     public Quantity<U> add(Quantity<U> other, U targetUnit){
-        validateOperation(other, targetUnit);
-
-        double thisBaseValue = unit.convertToBaseUnit(value);
-        double otherBaseValue = other.unit.convertToBaseUnit(other.value);
-
-        double totalValue = targetUnit.convertFromBaseUnit(thisBaseValue+otherBaseValue);
-        return new Quantity<>(round(totalValue), targetUnit);
+        double baseResult = performBaseArithmetic(other, targetUnit, ArithmeticOperation.ADD, true);
+        return buildQuantityFromBase(baseResult, targetUnit);
     }
 
     // Subtracts this quantity from another quantity of the same unit type and return the result in the unit of this quantity
@@ -68,33 +88,54 @@ public class Quantity<U extends IMeasurable> {
 
     // Subtracts this quantity from another quantity of the same unit type and return the result in the specified target unit
     public Quantity<U> subtract(Quantity<U> other, U targetUnit){
-        validateOperation(other, targetUnit);
-
-        double thisBaseUnit = unit.convertToBaseUnit(value);
-        double otherBaseUnit = other.unit.convertToBaseUnit(other.value);
-
-        double result = targetUnit.convertFromBaseUnit(thisBaseUnit-otherBaseUnit);
-
-        return new Quantity<>(round(result), targetUnit);
+        double baseResult = performBaseArithmetic(other, targetUnit, ArithmeticOperation.SUBTRACT, true);
+        return buildQuantityFromBase(baseResult, targetUnit);
     }
 
     // Divide this quantity by another quantity of the same unit type and return the result as a double
     public double divide(Quantity<U> other){
-        validateOperation(other, unit);
+        return performBaseArithmetic(other, null, ArithmeticOperation.Divide, false);
+    }
 
-        double thisBaseValue = unit.convertToBaseUnit(value);
-        double otherBaseValue = other.unit.convertToBaseUnit(other.value);
+    // Centralized core logic
+    private double performBaseArithmetic(Quantity<U> other, U targetUnit, ArithmeticOperation operation, boolean targetUnitRequired){
+        validateArithmeticOperands(other, targetUnit, targetUnitRequired);
 
-        if(otherBaseValue == 0){throw new ArithmeticException("Division by zero");}
+        double thisBase = unit.convertToBaseUnit(value);
+        double otherBase = other.unit.convertToBaseUnit(other.value);
 
-        return round(thisBaseValue/otherBaseValue);
+        return operation.compute(thisBase, otherBase);
     }
 
     // Validate this class and another class not be null and belongs to same Unit
-    private void validateOperation(Quantity<U> quantity, U targetUnit){
-        if(targetUnit == null){throw new IllegalArgumentException("Target unit cannot be null");}
-        if(quantity == null){throw new IllegalArgumentException("Quantity cannot be null");}
-        if(!unit.getClass().equals(quantity.unit.getClass()) || !targetUnit.getClass().equals(unit.getClass())){throw new IllegalArgumentException("Different measurement unit are not allowed");}
+    private void validateArithmeticOperands(Quantity<U> quantity, U targetUnit, boolean targetUnitRequired){
+        if (quantity == null) {
+            throw new IllegalArgumentException("Operand cannot be null");
+        }
+
+        if (!Double.isFinite(this.value) || !Double.isFinite(quantity.value)) {
+            throw new IllegalArgumentException("Values must be finite");
+        }
+
+        if (!this.unit.getClass().equals(quantity.unit.getClass())) {
+            throw new IllegalArgumentException("Cross category operation not allowed");
+        }
+
+        if (targetUnitRequired) {
+            if (targetUnit == null) {
+                throw new IllegalArgumentException("Target unit cannot be null");
+            }
+
+            if (!this.unit.getClass().equals(targetUnit.getClass())) {
+                throw new IllegalArgumentException("Invalid target unit category");
+            }
+        }
+    }
+
+    // Helper Builder
+    private Quantity<U> buildQuantityFromBase(double baseValue, U targetUnit){
+        double convertedValue = targetUnit.convertFromBaseUnit(baseValue);
+        return new Quantity<>(round(convertedValue), targetUnit);
     }
 
     // Round the value to two decimal value
