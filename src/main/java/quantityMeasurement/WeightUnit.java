@@ -1,6 +1,6 @@
 package quantityMeasurement;
 
-public enum WeightUnit {
+public enum WeightUnit implements IMeasurable {
     // Conversion factor to the base unit (grams)
     MILLIGRAM(0.001),
     GRAM(1.0),
@@ -8,22 +8,25 @@ public enum WeightUnit {
     POUND(453.592),
     TONNE(1000000.0);
 
-    private final double conversionFactor;
+    private final double conversionValue;
 
-    WeightUnit(double conversionFactor){
-        this.conversionFactor = conversionFactor;
+    WeightUnit(double conversionValue){
+        this.conversionValue = conversionValue;
     }
 
     // Get convertion factor to the base unit
-    public double getConversionFactor(){return conversionFactor;}
+    @Override
+    public double getConversionValue(){return conversionValue;}
 
     // Convert value from this unit to base unit (gram)
-    public double convertToBaseUnit(double value){
-        return value * this.conversionFactor;
-    }
+    @Override
+    public double convertToBaseUnit(double value){return value * this.conversionValue;}
 
     // Convert value from base unit (gram) to this unit
-    public double convertFromBaseUnit(double baseValue){
-        return baseValue/conversionFactor;
-    }
+    @Override
+    public double convertFromBaseUnit(double baseValue){return baseValue/conversionValue;}
+
+    // Get Unit name
+    @Override
+    public String getUnitName(){return this.name();}
 }
