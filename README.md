@@ -5,14 +5,15 @@ The Quantity Measurement App is designed to facilitate the conversion and measur
 
 ## Table of Contents
 1. [Overview](#overview)
-2. [Use Cases with Supported Units](#use-cases-with-supported-units)
+2. [Supported Units](#supported-units)
 3. [Folder Structure](#folder-structure)
-4. [Important Information](#important-information)
+4. [Use Cases Description](#folder-structure)
+5. [Important Information](#important-information)
 
 ## Overview
-This application aims to streamline the process of converting and measuring different physical quantities including weight, temperature, length, and more. It is built with efficiency in mind, catering to both casual users and professionals.
+This application aims to streamline the process of converting and measuring different physical quantities, including weight, temperature, length, and more. It is built with efficiency in mind, catering to both casual users and professionals.
 
-## Use Cases with Supported Units
+## Supported Units
 1. **Length Conversion**
    - Meters, Kilometers, Miles, Yards, Feet, Inches
 
@@ -22,54 +23,28 @@ This application aims to streamline the process of converting and measuring diff
 3. **Temperature Conversion**
    - Celsius, Fahrenheit, Kelvin
 
-4. **Area Calculation**
-   - Square meters, Acres, Hectares, Square feet
-
-5. **Volume Measurement**
-   - Liters, Milliliters, Gallons, Pints
-
-6. **Time Conversion**
-   - Seconds, Minutes, Hours, Days, Weeks
-
-7. **Speed Measurement**
-   - Meters per second, Kilometers per hour, Miles per hour
-
-8. **Data Storage Conversion**
-   - Bytes, Kilobytes, Megabytes, Gigabytes
-
-9. **Energy Measurement**
-   - Joules, Calories, Kilowatt-hours
-
-10. **Pressure Measurement**
-    - Pascals, Bar, Atmospheres, Torr
-
-11. **Force Measurement**
-    - Newtons, Pounds-force, Kilograms-force
-
-12. **Power Measurement**
-    - Watts, Horsepower, Kilowatts
-
-13. **Frequency Measurement**
-    - Hertz, Kilohertz, Megahertz
-
-14. **Angle Measurement**
-    - Degrees, Radians, Gradians
+4. **Volume Conversion**
+   - Litre, MilliLitre, Gallon
 
 ## Folder Structure
-``
-/QuantityMeasurementApp
-│
-├── src/                        # Source code
-│   ├── main.py                # Main application module
-│   ├── converter.py           # Module for conversions
-│   └── ...
-│
-├── tests/                      # Test cases
-│   ├── test_converter.py       # Tests for the converter module
-│   └── ...
-│
-└── README.md                  # Project documentation
-``
+<img width="666" height="336" alt="Project Structure" src="https://github.com/user-attachments/assets/0b429df1-b3e7-49de-8fb6-4304f14431ab" />
+
+
+## Use Cases Description
+- UC1 – Feet Measurement Equality (Double.compare(), null checking, type safety)
+- UC2 – Feet to Inches Conversion (Unit conversion logic, conversion factors)
+- UC3 – Inch Measurement (Symmetrical class design)
+- UC4 – Feet and Inch Addition (Unit standardization, arithmetic operations)
+- UC5 – Yard Measurement (Multi-level unit hierarchy)
+- UC6 – Centimeter Measurement (Metric system introduction)
+- UC7 – Centimeter to Meter Conversion (Metric hierarchy)
+- UC8 – Imperial to Metric Conversion (Cross-family conversions)
+- UC9 – Kilometer Distance Measurement (Extended metric system)
+- UC10 – Mile Measurement (Imperial long-distance)
+- UC11 – Temperature Conversion (Non-linear transformations)
+- UC12 – Volume Measurement (Liters/Milliliters)
+- UC13 – Weight Measurement (Grams/Kilograms)
+- UC14 – Compound Conversion and Addition (Multi-dimensional handling)
 
 ## Important Information
 - Ensure that you have the necessary permissions to run conversions.
