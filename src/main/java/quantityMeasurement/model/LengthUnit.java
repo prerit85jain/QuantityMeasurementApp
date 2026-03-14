@@ -1,8 +1,10 @@
-package quantityMeasurement;
+package quantityMeasurement.model;
 
 // Enum with conversion factor to base unit (inches)
 
-public enum LengthUnit implements IMeasurable{
+import quantityMeasurement.model.IMeasurable;
+
+public enum LengthUnit implements IMeasurable {
     FEET(12.0), // 1 feet = 12 inches
     INCHES(1.0), // 1 inch = 1 inch
     YARDS(36.0), // 1 yard = 36 inches
@@ -34,4 +36,19 @@ public enum LengthUnit implements IMeasurable{
     // Get unit name
     @Override
     public String getUnitName() {return this.name();}
+
+    @Override
+    public String getMeasurementType(){
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public IMeasurable getUnitInstance(String unitName){
+        for(LengthUnit unit : LengthUnit.values()){
+            if(unit.getUnitName().equalsIgnoreCase(unitName)){
+                return unit;
+            }
+        }
+        throw new IllegalArgumentException("Invalid length unit: " + unitName);
+    }
 }

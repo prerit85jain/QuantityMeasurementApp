@@ -1,6 +1,12 @@
 package quantityMeasurement;
 
 import org.junit.Test;
+import quantityMeasurement.core.Quantity;
+import quantityMeasurement.model.LengthUnit;
+import quantityMeasurement.model.TemperatureUnit;
+import quantityMeasurement.model.VolumeUnit;
+import quantityMeasurement.model.WeightUnit;
+
 import static org.junit.Assert.*;
 
 public class QuantityMeasurementAppTest {

@@ -1,4 +1,6 @@
-package quantityMeasurement;
+package quantityMeasurement.core;
+
+import quantityMeasurement.model.IMeasurable;
 
 public class Quantity<U extends IMeasurable> {
     private double value;

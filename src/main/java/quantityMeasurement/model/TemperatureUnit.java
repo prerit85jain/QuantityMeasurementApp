@@ -1,8 +1,8 @@
-package quantityMeasurement;
+package quantityMeasurement.model;
 
 import java.util.function.Function;
 
-public enum TemperatureUnit implements IMeasurable{
+public enum TemperatureUnit implements IMeasurable {
 
 
     CELSIUS(false),
@@ -61,7 +61,22 @@ public enum TemperatureUnit implements IMeasurable{
 
     @Override
     public String getUnitName() {
-        return null;
+        return this.name();
+    }
+
+    @Override
+    public String getMeasurementType(){
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public IMeasurable getUnitInstance(String unitName){
+        for(TemperatureUnit unit : TemperatureUnit.values()){
+            if(unit.getUnitName().equalsIgnoreCase(unitName)){
+                return unit;
+            }
+        }
+        throw new IllegalArgumentException("Invalid temperature unit:" + unitName);
     }
 
     // Convert between temperature units

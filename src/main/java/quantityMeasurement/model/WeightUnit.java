@@ -1,4 +1,6 @@
-package quantityMeasurement;
+package quantityMeasurement.model;
+
+import quantityMeasurement.model.IMeasurable;
 
 public enum WeightUnit implements IMeasurable {
     // Conversion factor to the base unit (grams)
@@ -29,4 +31,19 @@ public enum WeightUnit implements IMeasurable {
     // Get Unit name
     @Override
     public String getUnitName(){return this.name();}
+
+    @Override
+    public String getMeasurementType(){
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public IMeasurable getUnitInstance(String unitName){
+        for(WeightUnit unit : WeightUnit.values()){
+            if(unit.getUnitName().equalsIgnoreCase(unitName)){
+                return unit;
+            }
+        }
+        throw new IllegalArgumentException("Invalid weight unit:" + unitName);
+    }
 }

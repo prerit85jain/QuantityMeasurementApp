@@ -1,4 +1,4 @@
-package quantityMeasurement;
+package quantityMeasurement.model;
 
 @FunctionalInterface
 interface SupportsArithmetic{
@@ -20,6 +20,12 @@ public interface IMeasurable {
 
     // Get the unit name
     String getUnitName();
+
+    // Get the measurable type of the unit
+    String getMeasurementType();
+
+    // Give the unit name, return the IMeasurable unit instance
+    IMeasurable getUnitInstance(String unitName);
 
     // The following methods are optionals
     default boolean supportArithmetic(){return supportsArithmetic.isSupported();}
