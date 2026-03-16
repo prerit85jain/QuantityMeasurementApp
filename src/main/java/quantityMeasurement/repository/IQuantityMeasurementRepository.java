@@ -12,6 +12,20 @@ public interface IQuantityMeasurementRepository {
     // Retrieves all QuantityMeasurementEntity instances from the repository.
     List<QuantityMeasurementEntity> getAllMeasurements();
 
+    List<QuantityMeasurementEntity> getMeasurementsByOperation(String operation);
+
+    List<QuantityMeasurementEntity> getMeasurementsByType(String measurementType);
+
+    int getTotalCount();
+
+    void deleteAll();
+
+    default String getPoolStatistics() {
+        return "Pool statistics not available for this repository implementation.";
+    }
+
+    default void releaseResources() { }
+
     // Main method for testing purposes
     public static void main(String[] args) {
         System.out.println("Testing IQuantityMeasurementRepository interface");

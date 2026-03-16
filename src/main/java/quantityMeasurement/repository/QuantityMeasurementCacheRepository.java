@@ -3,7 +3,10 @@ package quantityMeasurement.repository;
 import quantityMeasurement.entity.QuantityMeasurementEntity;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 class AppendableObjectOutputStream extends ObjectOutputStream {
     public AppendableObjectOutputStream(OutputStream out) throws IOException
@@ -24,96 +27,92 @@ class AppendableObjectOutputStream extends ObjectOutputStream {
     }
 }
 
-public class QuantityMeasurementCacheRepository implements IQuantityMeasurementRepository{
-    // In-memory cache to store QuantityMeasurementEntity objects for quick access into the file system.
+public class QuantityMeasurementCacheRepository implements IQuantityMeasurementRepository {
+
+    private static final Logger logger = Logger.getLogger(
+            QuantityMeasurementCacheRepository.class.getName());
+
     public static final String FILE_NAME = "quantity_measurement_repo.ser";
 
-    // Holds the cached QuantityMeasurementEntity objects in memory for quick access
     List<QuantityMeasurementEntity> quantityMeasurementEntityCache;
-
-    // Singleton instance of the repository
     private static QuantityMeasurementCacheRepository instance;
 
-    // Private constructor to prevent instantiation from outside the class
     private QuantityMeasurementCacheRepository() {
-        // Initialize the in-memory cache
-        quantityMeasurementEntityCache = new java.util.ArrayList<>();
-        // Load any existing data from disk
+        quantityMeasurementEntityCache = new ArrayList<>();
         loadFromDisk();
+        logger.info("QuantityMeasurementCacheRepository initialized.");
     }
 
-    // Get the singleton instance of the QuantityMeasurementCacheRepository.
     public static QuantityMeasurementCacheRepository getInstance() {
-        if (instance == null) {
-            instance = new QuantityMeasurementCacheRepository();
-        }
+        if (instance == null) instance = new QuantityMeasurementCacheRepository();
         return instance;
     }
 
-    //Adds the entity to the in-memory cache and persists it to disk.
-    @Override
-    public void save(QuantityMeasurementEntity entity) {
+    @Override public void save(QuantityMeasurementEntity entity) {
         quantityMeasurementEntityCache.add(entity);
         saveToDisk(entity);
+        logger.fine("Entity saved to cache. Total: " + quantityMeasurementEntityCache.size());
     }
 
-    // Retrieves all QuantityMeasurementEntity instances from the cache.
-    @Override
-    public List<QuantityMeasurementEntity> getAllMeasurements() {
-        return quantityMeasurementEntityCache;
+    @Override public List<QuantityMeasurementEntity> getAllMeasurements() {
+        return new ArrayList<>(quantityMeasurementEntityCache);
     }
 
-    private void saveToDisk(QuantityMeasurementEntity entity) {
-        // Append the new entity to the existing file without overwriting previous data
-        try (
-                FileOutputStream fos = new FileOutputStream(FILE_NAME, true);
-                AppendableObjectOutputStream oos = new AppendableObjectOutputStream(fos)
-        ) {
-            oos.writeObject(entity);
-        } catch (IOException e) {
-            System.err.println("Error saving entity: " + e.getMessage());
-        }
+    @Override public List<QuantityMeasurementEntity> getMeasurementsByOperation(String operation) {
+        return quantityMeasurementEntityCache.stream()
+                .filter(e -> operation.equalsIgnoreCase(e.operation))
+                .collect(Collectors.toList());
     }
 
-    // Method to load the in-memory cache from disk when the repository is initialized
-    private void loadFromDisk() {
-        File file = new File(FILE_NAME);
-        if (!file.exists()) {
-            return;
-        }
-        try (
-                FileInputStream fis = new FileInputStream(FILE_NAME);
-                ObjectInputStream ois = new ObjectInputStream(fis)
-        ) {
-            while (true) {
-                try {
-                    QuantityMeasurementEntity entity = (QuantityMeasurementEntity) ois.readObject();
-                    quantityMeasurementEntityCache.add(entity);
-                } catch (EOFException e) {
-                    // End of file reached
-                    break;
-                }
-            }
-            System.out.println("Loaded " + quantityMeasurementEntityCache.size() +
-                    " quantity measurement entities from storage");
-        } catch (IOException | ClassNotFoundException ex) {
-            System.err.println(
-                    "Error loading quantity measurement entities: " + ex.getMessage()
-            );
-        }
+    @Override public List<QuantityMeasurementEntity> getMeasurementsByType(String measurementType) {
+        return quantityMeasurementEntityCache.stream()
+                .filter(e -> measurementType.equalsIgnoreCase(e.thisMeasurementType))
+                .collect(Collectors.toList());
     }
 
-    // Utility method for tests — clear in-memory cache and delete file
-    public void clearAll() {
+    @Override public int getTotalCount() { return quantityMeasurementEntityCache.size(); }
+
+    @Override public void deleteAll() {
         quantityMeasurementEntityCache.clear();
         File file = new File(FILE_NAME);
         if (file.exists()) file.delete();
+        logger.info("All measurements deleted from cache repository.");
     }
 
-    // Main method for testing purposes
+    @Override public String getPoolStatistics() {
+        return "CacheRepository: in-memory, " + quantityMeasurementEntityCache.size() + " entities.";
+    }
+
+    private void saveToDisk(QuantityMeasurementEntity entity) {
+        try (FileOutputStream fos = new FileOutputStream(FILE_NAME, true);
+             AppendableObjectOutputStream oos = new AppendableObjectOutputStream(fos)) {
+            oos.writeObject(entity);
+        } catch (IOException e) {
+            logger.severe("Error saving to disk: " + e.getMessage());
+        }
+    }
+
+    private void loadFromDisk() {
+        File file = new File(FILE_NAME);
+        if (!file.exists()) return;
+        try (FileInputStream fis = new FileInputStream(FILE_NAME);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            while (true) {
+                try {
+                    quantityMeasurementEntityCache.add(
+                            (QuantityMeasurementEntity) ois.readObject());
+                } catch (EOFException e) { break; }
+            }
+            logger.info("Loaded " + quantityMeasurementEntityCache.size() + " entities from storage");
+        } catch (IOException | ClassNotFoundException ex) {
+            logger.severe("Error loading entities: " + ex.getMessage());
+        }
+    }
+
+    public void clearAll() { deleteAll(); }
+
     public static void main(String[] args) {
-        QuantityMeasurementCacheRepository repo = QuantityMeasurementCacheRepository.getInstance();
-        System.out.println("Repository instance: " + repo);
-        System.out.println("Measurements count:  " + repo.getAllMeasurements().size());
+        QuantityMeasurementCacheRepository repo = getInstance();
+        logger.info("Count: " + repo.getTotalCount());
     }
 }

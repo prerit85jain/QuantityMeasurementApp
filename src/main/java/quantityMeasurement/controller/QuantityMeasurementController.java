@@ -5,54 +5,51 @@ import quantityMeasurement.entity.QuantityDTO;
 import quantityMeasurement.repository.*;
 import quantityMeasurement.service.QuantityMeasurementServiceImpl;
 
+import java.util.logging.Logger;
+
 public class QuantityMeasurementController {
+
+    private static final Logger logger = Logger.getLogger(
+            QuantityMeasurementController.class.getName());
+
     private IQuantityMeasurementService quantityMeasurementService;
 
-    public QuantityMeasurementController(
-            IQuantityMeasurementService quantityMeasurementService) {
+    public QuantityMeasurementController(IQuantityMeasurementService quantityMeasurementService) {
         this.quantityMeasurementService = quantityMeasurementService;
+        logger.info("QuantityMeasurementController initialized.");
     }
 
-    public boolean performComparison(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO) {
-        return quantityMeasurementService.compare(thisQuantityDTO, thatQuantityDTO);
+    public boolean performComparison(QuantityDTO thisQ, QuantityDTO thatQ) {
+        return quantityMeasurementService.compare(thisQ, thatQ);
     }
 
-    public QuantityDTO performConversion(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO) {
-        return quantityMeasurementService.convert(thisQuantityDTO, thatQuantityDTO);
+    public QuantityDTO performConversion(QuantityDTO thisQ, QuantityDTO thatQ) {
+        return quantityMeasurementService.convert(thisQ, thatQ);
     }
 
-    public QuantityDTO performAddition(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO) {
-        return quantityMeasurementService.add(thisQuantityDTO, thatQuantityDTO);
+    public QuantityDTO performAddition(QuantityDTO thisQ, QuantityDTO thatQ) {
+        return quantityMeasurementService.add(thisQ, thatQ);
     }
 
-    public QuantityDTO performAddition(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO,
-                    QuantityDTO targetUnitDTO) {
-        return quantityMeasurementService.add(thisQuantityDTO, thatQuantityDTO,
-                targetUnitDTO);
+    public QuantityDTO performAddition(QuantityDTO thisQ, QuantityDTO thatQ, QuantityDTO targetQ) {
+        return quantityMeasurementService.add(thisQ, thatQ, targetQ);
     }
 
-    public QuantityDTO performSubtraction(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO) {
-        return quantityMeasurementService.subtract(thisQuantityDTO, thatQuantityDTO);
+    public QuantityDTO performSubtraction(QuantityDTO thisQ, QuantityDTO thatQ) {
+        return quantityMeasurementService.subtract(thisQ, thatQ);
     }
 
-    public QuantityDTO performSubtraction(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO,
-                       QuantityDTO targetUnitDTO) {
-        return quantityMeasurementService.subtract(thisQuantityDTO, thatQuantityDTO,
-                targetUnitDTO);
+    public QuantityDTO performSubtraction(QuantityDTO thisQ, QuantityDTO thatQ, QuantityDTO targetQ) {
+        return quantityMeasurementService.subtract(thisQ, thatQ, targetQ);
     }
 
-    public double performDivision(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO) {
-        return quantityMeasurementService.divide(thisQuantityDTO, thatQuantityDTO);
+    public double performDivision(QuantityDTO thisQ, QuantityDTO thatQ) {
+        return quantityMeasurementService.divide(thisQ, thatQ);
     }
 
     // Main method for testing purposes
     public static void main(String[] args) {
-        IQuantityMeasurementRepository repo = QuantityMeasurementCacheRepository.getInstance();
-        QuantityMeasurementController controller = new QuantityMeasurementController(new QuantityMeasurementServiceImpl(repo));
-
-        boolean result = controller.performComparison(
-                new QuantityDTO(1.0,  QuantityDTO.LengthUnit.FEET),
-                new QuantityDTO(12.0, QuantityDTO.LengthUnit.INCHES));
-        System.out.println("1 FEET == 12 INCHES: " + result);
+        logger.info("QuantityMeasurementController - UC16");
     }
 }
+
