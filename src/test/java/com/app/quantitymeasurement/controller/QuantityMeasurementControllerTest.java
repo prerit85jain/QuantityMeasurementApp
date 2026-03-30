@@ -1,6 +1,10 @@
 package com.app.quantitymeasurement.controller;
 
+<<<<<<< HEAD
 import com.app.quantitymeasurement.model.QuantityMeasurementDTO;
+=======
+import com.app.quantitymeasurement.dto.QuantityMeasurementDTO;
+>>>>>>> 4ec1ffaf9cb2e68201c2466605f4c5a4b9dd9d4f
 import com.app.quantitymeasurement.service.IQuantityMeasurementService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -123,7 +127,11 @@ class QuantityMeasurementControllerTest {
 
     @Test
     void testGetHistory_returnsOkList() throws Exception {
+<<<<<<< HEAD
         Mockito.when(service.getOperationHistory("")).thenReturn(List.of(compareDTO()));
+=======
+        Mockito.when(service.getAllMeasurements()).thenReturn(List.of(compareDTO()));
+>>>>>>> 4ec1ffaf9cb2e68201c2466605f4c5a4b9dd9d4f
         mockMvc.perform(get("/api/measurements/history"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].operation").value("COMPARE"));
@@ -131,7 +139,11 @@ class QuantityMeasurementControllerTest {
 
     @Test
     void testGetHistoryByOperation_returnsOkList() throws Exception {
+<<<<<<< HEAD
         Mockito.when(service.getOperationHistory("COMPARE")).thenReturn(List.of(compareDTO()));
+=======
+        Mockito.when(service.getMeasurementsByOperation("COMPARE")).thenReturn(List.of(compareDTO()));
+>>>>>>> 4ec1ffaf9cb2e68201c2466605f4c5a4b9dd9d4f
         mockMvc.perform(get("/api/measurements/history/COMPARE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].operation").value("COMPARE"));

@@ -1,6 +1,10 @@
 package com.app.quantitymeasurement;
 
+<<<<<<< HEAD
 import com.app.quantitymeasurement.model.QuantityMeasurementDTO;
+=======
+import com.app.quantitymeasurement.dto.QuantityMeasurementDTO;
+>>>>>>> 4ec1ffaf9cb2e68201c2466605f4c5a4b9dd9d4f
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
