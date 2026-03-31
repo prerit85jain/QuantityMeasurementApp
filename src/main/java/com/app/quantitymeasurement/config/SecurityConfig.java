@@ -3,6 +3,7 @@ package com.app.quantitymeasurement.config;
 import com.app.quantitymeasurement.security.JwtAuthenticationFilter;
 import com.app.quantitymeasurement.security.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,31 +51,33 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
+    @Value("${spring.h2.console.enabled:false}")
+    private boolean h2ConsoleEnabled;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers.frameOptions(f -> f.disable()))
-            .authorizeHttpRequests(auth -> auth
-                // Auth endpoints
-                .requestMatchers("/auth/**").permitAll()
-                // Public info endpoints
-                .requestMatchers("/api/health", "/api/welcome", "/api/oauth2/**").permitAll()
-                // Swagger / OpenAPI
-                .requestMatchers(
-                    "/swagger-ui/**",
-                    "/swagger-ui.html",
-                    "/api-docs/**",
-                    "/v3/api-docs/**"
-                ).permitAll()
-                // H2 console and Actuator
-                .requestMatchers("/h2-console/**", "/actuator/**").permitAll()
-                // OAuth2 login redirect URLs
-                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-                // Everything else requires authentication
-                .anyRequest().authenticated()
-            )
+            .authorizeHttpRequests(auth -> {
+                auth
+                    .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/api/health", "/api/welcome", "/api/oauth2/**").permitAll()
+                    .requestMatchers(
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/api-docs/**",
+                        "/v3/api-docs/**"
+                    ).permitAll()
+                    .requestMatchers("/actuator/**").permitAll()
+                    .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll();
+                // H2 console only allowed in dev
+                if (h2ConsoleEnabled) {
+                    auth.requestMatchers("/h2-console/**").permitAll();
+                }
+                auth.anyRequest().authenticated();
+            })
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
@@ -88,20 +91,18 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:5500,http://127.0.0.1:5500}")
+    private String allowedOrigins;
+
     /**
-     * CORS configuration – allows the frontend (file:// or localhost dev server)
-     * to call the API without browser CORS errors.
+     * CORS configuration — reads allowed origins from environment variable.
+     * In prod, set APP_CORS_ALLOWED_ORIGINS to your frontend URL in Railway.
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Allow requests from local dev servers and file:// (origin "null")
-        config.setAllowedOrigins(List.of(
-            "http://localhost:3000",
-            "http://localhost:5500",
-            "http://127.0.0.1:5500",
-            "null"           // for file:// opened HTML pages
-        ));
+        List<String> origins = List.of(allowedOrigins.split(","));
+        config.setAllowedOrigins(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

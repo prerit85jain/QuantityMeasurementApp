@@ -1,25 +1,24 @@
 -- ============================================================
--- Quantity Measurement App - Database Schema (UC16)
--- Production Database
+-- Quantity Measurement App - PostgreSQL Schema (AWS RDS)
+-- ============================================================
+-- NOTE: This file is only used by H2 in dev (schema.sql is
+-- picked up automatically). In production, Hibernate's
+-- ddl-auto=update creates/updates tables on startup.
 -- ============================================================
 
--- Drop tables if they exist (for clean re-initialization)
-DROP TABLE IF EXISTS quantity_measurement_history;
-DROP TABLE IF EXISTS quantity_measurement_entity;
-
 -- ============================================================
--- Main entity table for storing quantity measurement operations
+-- Main entity table
 -- ============================================================
 CREATE TABLE IF NOT EXISTS quantity_measurement_entity (
-    id                      BIGINT AUTO_INCREMENT PRIMARY KEY,
-    this_value              DOUBLE          NOT NULL,
+    id                      BIGSERIAL       PRIMARY KEY,
+    this_value              DOUBLE PRECISION NOT NULL,
     this_unit               VARCHAR(50)     NOT NULL,
     this_measurement_type   VARCHAR(50)     NOT NULL,
-    that_value              DOUBLE,
+    that_value              DOUBLE PRECISION,
     that_unit               VARCHAR(50),
     that_measurement_type   VARCHAR(50),
     operation               VARCHAR(20)     NOT NULL,
-    result_value            DOUBLE,
+    result_value            DOUBLE PRECISION,
     result_unit             VARCHAR(50),
     result_measurement_type VARCHAR(50),
     result_string           VARCHAR(100),
@@ -29,23 +28,32 @@ CREATE TABLE IF NOT EXISTS quantity_measurement_entity (
     updated_at              TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Index for querying by operation type
 CREATE INDEX IF NOT EXISTS idx_operation
     ON quantity_measurement_entity (operation);
 
--- Index for querying by measurement type
 CREATE INDEX IF NOT EXISTS idx_measurement_type
     ON quantity_measurement_entity (this_measurement_type);
 
--- Index for querying by created date
 CREATE INDEX IF NOT EXISTS idx_created_at
     ON quantity_measurement_entity (created_at);
+
+-- ============================================================
+-- Users table
+-- ============================================================
+CREATE TABLE IF NOT EXISTS app_users (
+    id          BIGSERIAL       PRIMARY KEY,
+    username    VARCHAR(100)    NOT NULL UNIQUE,
+    password    VARCHAR(255),
+    role        VARCHAR(50)     NOT NULL,
+    provider    VARCHAR(20)     NOT NULL,
+    provider_id VARCHAR(255)
+);
 
 -- ============================================================
 -- History / audit table
 -- ============================================================
 CREATE TABLE IF NOT EXISTS quantity_measurement_history (
-    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id              BIGSERIAL       PRIMARY KEY,
     entity_id       BIGINT          NOT NULL,
     operation       VARCHAR(20)     NOT NULL,
     changed_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
