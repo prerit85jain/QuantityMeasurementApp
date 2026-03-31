@@ -1,0 +1,43 @@
+# render.yaml — Infrastructure-as-Code for Render
+# Place this file in the ROOT of your backend repository.
+# Render will detect it automatically when you connect the repo.
+
+services:
+  - type: web
+    name: qm-backend
+    env: java
+    region: oregon          # choose the region closest to you
+    plan: free              # or 'starter' for always-on
+    buildCommand: "./render-build.sh"
+    startCommand: "java -Dspring.profiles.active=prod -jar target/quantity-measurement-app-1.0.0.jar"
+    healthCheckPath: /api/health
+    envVars:
+      # ── MySQL (copy from Railway after you create the DB) ──────────────
+      - key: MYSQL_URL
+        sync: false          # set manually in Render dashboard
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+
+      # ── JWT ────────────────────────────────────────────────────────────
+      - key: JWT_SECRET
+        generateValue: true  # Render auto-generates a secure random value
+
+      # ── CORS & URLs ────────────────────────────────────────────────────
+      - key: APP_CORS_ALLOWED_ORIGINS
+        sync: false          # e.g. https://qm-frontend.onrender.com
+      - key: APP_FRONTEND_URL
+        sync: false          # same as above
+      - key: APP_BACKEND_URL
+        sync: false          # e.g. https://qm-backend.onrender.com
+
+      # ── OAuth2 (optional — fill in if you use Google/GitHub login) ─────
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
