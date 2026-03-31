@@ -5,6 +5,9 @@ import com.app.quantitymeasurement.security.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -13,34 +16,20 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 
-/**
- * SecurityConfig – master Spring Security configuration.
- *
- * Public endpoints (no token needed):
- *   POST /auth/register, POST /auth/login
- *   GET  /auth/oauth2-info
- *   GET  /api/health, GET /api/welcome
- *   GET  /api/oauth2/**
- *   GET  /oauth2/**, /login/oauth2/**   (OAuth2 login redirect)
- *   GET  /swagger-ui/**, /api-docs/**
- *   GET  /h2-console/**
- *   GET  /actuator/**
- *
- * Protected endpoints (JWT Bearer token required):
- *   ALL  /api/v1/quantities/**
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -51,7 +40,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    @Value("${allowed.origins:http://localhost:3000,http://localhost:5500,http://127.0.0.1:5500,null}")
+    @Value("${allowed.origins:http://localhost:3000}")
     private String allowedOriginsConfig;
 
     @Bean
@@ -60,30 +49,42 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers.frameOptions(f -> f.disable()))
+
             .authorizeHttpRequests(auth -> auth
+                // ✅ VERY IMPORTANT: allow preflight requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                 // Auth endpoints
                 .requestMatchers("/auth/**").permitAll()
-                // Public info endpoints
+
+                // Public endpoints
                 .requestMatchers("/api/health", "/api/welcome", "/api/oauth2/**").permitAll()
-                // Swagger / OpenAPI
+
+                // Swagger
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
                     "/api-docs/**",
                     "/v3/api-docs/**"
                 ).permitAll()
-                // H2 console and Actuator
+
+                // H2 + actuator
                 .requestMatchers("/h2-console/**", "/actuator/**").permitAll()
-                // OAuth2 login redirect URLs
+
+                // OAuth2 redirects
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-                // Everything else requires authentication
+
+                // Everything else secured
                 .anyRequest().authenticated()
             )
+
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(oAuth2LoginSuccessHandler)
                 .failureUrl("/auth/login?error=oauth2")
@@ -93,33 +94,44 @@ public class SecurityConfig {
     }
 
     /**
-     * CORS configuration – allows specific origins to call the API.
-     * Set ALLOWED_ORIGINS environment variable: https://domain1.com,https://domain2.com
+     * ✅ FIXED CORS CONFIG (Railway + Vercel friendly)
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        
-        // Parse and clean origins
+
+        // Parse env variable
         String[] rawOrigins = allowedOriginsConfig.split(",");
         java.util.List<String> cleanedOrigins = new java.util.ArrayList<>();
-        
+
         for (String origin : rawOrigins) {
             String cleaned = origin.trim().replaceAll("/$", "");
             if (!cleaned.isEmpty()) {
                 cleanedOrigins.add(cleaned);
             }
         }
-        
-        config.setAllowedOrigins(cleanedOrigins);
-        config.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
-        config.setAllowedHeaders(java.util.Arrays.asList("*"));
-        config.setExposedHeaders(java.util.Arrays.asList("Authorization", "Content-Type"));
+
+        // ✅ Use patterns instead of exact origins (fixes Railway/Vercel issues)
+        config.setAllowedOriginPatterns(cleanedOrigins);
+
+        // OR fallback (safe defaults)
+        if (cleanedOrigins.isEmpty()) {
+            config.setAllowedOriginPatterns(List.of(
+                "https://*.vercel.app",
+                "https://*.railway.app",
+                "http://localhost:3000"
+            ));
+        }
+
+        config.setAllowedMethods(List.of("*"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
+
         return source;
     }
 
