@@ -103,8 +103,11 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         
-        // Parse allowed origins from environment variable
-        List<String> origins = List.of(allowedOriginsConfig.split(","));
+        // Parse allowed origins from environment variable and trim whitespace
+        List<String> origins = java.util.Arrays.stream(allowedOriginsConfig.split(","))
+                .map(String::trim)
+                .map(origin -> origin.replaceAll("/$", "")) // Remove trailing slashes
+                .toList();
         config.setAllowedOrigins(origins);
         
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
