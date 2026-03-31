@@ -93,26 +93,30 @@ public class SecurityConfig {
     }
 
     /**
-     * CORS configuration – allows the frontend, Railway domain, and local dev servers
-     * to call the API without browser CORS errors.
-     *
-     * Set ALLOWED_ORIGINS environment variable to override defaults:
-     *   ALLOWED_ORIGINS=https://my-railway-app.up.railway.app,http://localhost:3000
+     * CORS configuration – allows specific origins to call the API.
+     * Set ALLOWED_ORIGINS environment variable: https://domain1.com,https://domain2.com
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         
-        // Parse allowed origins from environment variable and trim whitespace
-        List<String> origins = java.util.Arrays.stream(allowedOriginsConfig.split(","))
-                .map(String::trim)
-                .map(origin -> origin.replaceAll("/$", "")) // Remove trailing slashes
-                .toList();
-        config.setAllowedOrigins(origins);
+        // Parse and clean origins
+        String[] rawOrigins = allowedOriginsConfig.split(",");
+        java.util.List<String> cleanedOrigins = new java.util.ArrayList<>();
         
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        for (String origin : rawOrigins) {
+            String cleaned = origin.trim().replaceAll("/$", "");
+            if (!cleaned.isEmpty()) {
+                cleanedOrigins.add(cleaned);
+            }
+        }
+        
+        config.setAllowedOrigins(cleanedOrigins);
+        config.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
+        config.setAllowedHeaders(java.util.Arrays.asList("*"));
+        config.setExposedHeaders(java.util.Arrays.asList("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
