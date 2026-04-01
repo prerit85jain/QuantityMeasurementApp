@@ -28,6 +28,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -51,7 +52,7 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions(f -> f.disable()))
 
             .authorizeHttpRequests(auth -> auth
-                // ✅ VERY IMPORTANT: allow preflight requests
+                // ✅ Allow preflight requests
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                 // Auth endpoints
@@ -71,10 +72,10 @@ public class SecurityConfig {
                 // H2 + actuator
                 .requestMatchers("/h2-console/**", "/actuator/**").permitAll()
 
-                // OAuth2 redirects
+                // OAuth2
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
-                // Everything else secured
+                // Secure others
                 .anyRequest().authenticated()
             )
 
@@ -94,15 +95,15 @@ public class SecurityConfig {
     }
 
     /**
-     * ✅ FIXED CORS CONFIG (Railway + Vercel friendly)
+     * ✅ FINAL WORKING CORS CONFIG
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Parse env variable
+        // 🔥 Parse and clean env variable
         String[] rawOrigins = allowedOriginsConfig.split(",");
-        java.util.List<String> cleanedOrigins = new java.util.ArrayList<>();
+        List<String> cleanedOrigins = new ArrayList<>();
 
         for (String origin : rawOrigins) {
             String cleaned = origin.trim().replaceAll("/$", "");
@@ -111,19 +112,11 @@ public class SecurityConfig {
             }
         }
 
-        // ✅ Use patterns instead of exact origins (fixes Railway/Vercel issues)
-        config.setAllowedOriginPatterns(cleanedOrigins);
+        // ✅ IMPORTANT: use EXACT origins (not patterns)
+        config.setAllowedOrigins(cleanedOrigins);
 
-        // OR fallback (safe defaults)
-        if (cleanedOrigins.isEmpty()) {
-            config.setAllowedOriginPatterns(List.of(
-                "https://*.vercel.app",
-                "https://*.railway.app",
-                "http://localhost:3000"
-            ));
-        }
-
-        config.setAllowedMethods(List.of("*"));
+        // ✅ Required settings
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
