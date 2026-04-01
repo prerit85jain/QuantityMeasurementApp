@@ -147,7 +147,14 @@ public class JwtService {
 
     /** Decode the base64 secret key into a Key object */
     private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes;
+        try {
+            // Try URL-safe base64 first (handles "-" and "_" characters)
+            keyBytes = Decoders.BASE64URL.decode(secretKey);
+        } catch (Exception e) {
+            // Fall back to standard base64
+            keyBytes = Decoders.BASE64.decode(secretKey);
+        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
